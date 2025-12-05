@@ -884,20 +884,10 @@ function App() {
   const connectGoogleCalendar = async () => {
     try {
       // Use addCalendarAccount which prompts for account selection
-      const { token, timestamp } = await addCalendarAccount();
+      const result = await addCalendarAccount();
+      const { token, timestamp, email: accountEmail, userChanged } = result;
 
       if (token) {
-        // Fetch the user's email for this Google account
-        const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        let accountEmail = 'unknown';
-        if (userInfoResponse.ok) {
-          const userInfo = await userInfoResponse.json();
-          accountEmail = userInfo.email;
-        }
-
         // Check if this account is already connected
         const existingAccount = connectedAccounts.find(acc => acc.email === accountEmail);
         if (existingAccount) {
@@ -924,6 +914,15 @@ function App() {
         }
 
         setCalendarConnected(true);
+
+        // If user selected a different Google account, they got signed into that account
+        // We need to sign them out and have them sign back in with their original account
+        if (userChanged) {
+          showToast('Please sign in again with your main account to access your data.', 'warning');
+          await signOutUser();
+          return;
+        }
+
         // Fetch calendar events immediately after connecting
         setTimeout(() => fetchGoogleCalendarEvents(), 1000);
       } else {

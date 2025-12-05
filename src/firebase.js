@@ -61,23 +61,30 @@ export const signInWithGoogle = async () => {
   }
 };
 
-// Add a calendar account (forces account selection, returns token without changing Firebase user)
+// Add a calendar account (forces account selection)
+// Note: This returns info about whether the primary user changed
 export const addCalendarAccount = async () => {
   try {
-    // Use signInWithPopup with account selection - this will temporarily change the auth state
-    // but we'll restore it after getting the token
-    const currentUser = auth.currentUser;
+    // Store original user info before popup
+    const originalUser = auth.currentUser;
+    const originalUid = originalUser?.uid;
+
     const result = await signInWithPopup(auth, googleCalendarProvider);
     const credential = GoogleAuthProvider.credentialFromResult(result);
     const token = credential.accessToken;
+    const newUser = result.user;
 
-    // Store the new token for calendar use
-    if (token) {
-      localStorage.setItem('googleAccessToken', token);
-      localStorage.setItem('googleTokenTimestamp', Date.now().toString());
-    }
+    // Check if user changed (signed into different account)
+    const userChanged = originalUid && newUser.uid !== originalUid;
 
-    return { token, timestamp: Date.now().toString() };
+    return {
+      token,
+      timestamp: Date.now().toString(),
+      email: newUser.email,
+      userChanged,
+      originalUid,
+      newUid: newUser.uid
+    };
   } catch (error) {
     console.error("Error adding calendar account:", error);
     throw error;
