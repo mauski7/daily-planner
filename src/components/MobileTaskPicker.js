@@ -110,7 +110,6 @@ export default function MobileTaskPicker({
             placeholder="Search tasks..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            autoFocus
           />
           {searchQuery && (
             <button
