@@ -3167,35 +3167,56 @@ body::after {
     color: var(--primary);
   }
 
-  /* Short task optimizations on mobile */
-  .time-block.short-task .task-metadata {
-    flex-wrap: nowrap;
-    overflow: hidden;
-  }
-
-  .time-block.short-task .task-project-name {
-    font-size: 0.65rem;
-    padding: 0.15rem 0.35rem;
-    max-width: 80px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .time-block.short-task .task-area-badge {
+  /* Hide life area badges from ALL scheduled tasks on mobile */
+  .time-block .task-area-badge {
     display: none;
   }
 
-  .time-block.short-task .task-name {
+  /* Very short task (15 min) - inline layout */
+  .time-block.very-short-task .task-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .time-block.very-short-task .task-metadata {
+    display: contents;
+  }
+
+  .time-block.very-short-task .task-project-name {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.35rem;
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-left: 0.5rem;
+  }
+
+  .time-block.very-short-task .task-name {
     font-size: 0.8rem;
     line-height: 1.2;
   }
 
-  .time-block.short-task .task-content {
-    gap: 0.15rem;
+  .time-block.very-short-task .task-content {
+    gap: 0;
   }
 
-  .time-block.short-task .scheduled-task-item {
+  .time-block.very-short-task .scheduled-task-item {
+    padding: 0.25rem 0.5rem;
+  }
+
+  /* Short task (30-45 min) - normal layout, just smaller */
+  .time-block.short-task:not(.very-short-task) .task-name {
+    font-size: 0.85rem;
+  }
+
+  .time-block.short-task:not(.very-short-task) .task-content {
+    gap: 0.2rem;
+  }
+
+  .time-block.short-task:not(.very-short-task) .scheduled-task-item {
     padding: 0.35rem 0.5rem;
   }
 }

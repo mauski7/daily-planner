@@ -63,6 +63,7 @@ const TimeSlot = React.memo(function TimeSlot({
   const dynamicHeight = task ? `${Math.round(BASE_HOUR_HEIGHT * heightMultiplier)}px` : undefined;
   const isMultiHour = taskDuration > 60;
   const isShortTask = taskDuration < 60;
+  const isVeryShortTask = taskDuration <= 15;
 
   // Build slot styles
   const slotStyle = {
@@ -72,7 +73,7 @@ const TimeSlot = React.memo(function TimeSlot({
 
   return (
     <div
-      className={`time-block ${isExpanded ? 'expanded' : ''} ${isMultiHour ? 'multi-hour' : ''} ${isShortTask ? 'short-task' : ''}`}
+      className={`time-block ${isExpanded ? 'expanded' : ''} ${isMultiHour ? 'multi-hour' : ''} ${isShortTask ? 'short-task' : ''} ${isVeryShortTask ? 'very-short-task' : ''}`}
       style={dynamicHeight ? { minHeight: dynamicHeight } : undefined}
     >
       <button
