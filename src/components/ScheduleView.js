@@ -21,7 +21,8 @@ const ScheduleView = React.memo(function ScheduleView({
   recentProjects = [],
   expandedSlots = {},
   onTimeSlotClick,
-  onRefreshCalendar
+  onRefreshCalendar,
+  onMobileSlotTap
 }) {
   const getScheduleTitle = () => {
     if (isToday(selectedDate)) return "Today's Schedule";
@@ -82,6 +83,7 @@ const ScheduleView = React.memo(function ScheduleView({
               isExpanded={!!parentExpansionLevel}
               expansionLevel={parentExpansionLevel}
               onTimeClick={onTimeSlotClick}
+              onMobileSlotTap={onMobileSlotTap}
             />
           );
         })}

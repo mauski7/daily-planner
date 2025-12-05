@@ -17,6 +17,7 @@ import EditScheduledTaskModal from './components/EditScheduledTaskModal';
 import CalendarSelector from './components/CalendarSelector';
 import ToastContainer from './components/ToastContainer';
 import DatePicker from './components/DatePicker';
+import MobileTaskPicker from './components/MobileTaskPicker';
 import './App.css';
 
 // Default life areas for new users
@@ -196,6 +197,8 @@ function App() {
   const [collapsedProjects, setCollapsedProjects] = useState({});
   // Mobile navigation state: 'tasks', 'schedule', or 'projects'
   const [mobileActiveView, setMobileActiveView] = useState('schedule');
+  // Mobile task picker state: { isOpen, timeSlot }
+  const [mobileTaskPicker, setMobileTaskPicker] = useState({ isOpen: false, timeSlot: null });
 
   // Memoize time slots generation
   const timeSlots = useMemo(() => getVisibleTimeSlots(schedule, calendarEvents, expandedSlots), [schedule, calendarEvents, expandedSlots]);
@@ -1044,6 +1047,44 @@ function App() {
     }
   };
 
+  // Mobile task picker handlers
+  const openMobileTaskPicker = (timeSlot) => {
+    setMobileTaskPicker({ isOpen: true, timeSlot });
+  };
+
+  const closeMobileTaskPicker = () => {
+    setMobileTaskPicker({ isOpen: false, timeSlot: null });
+  };
+
+  const handleMobileTaskSelect = (timeSlot, task) => {
+    // Calculate end time based on duration
+    const durationMinutes = task.durationMinutes || 60;
+    const [startHour, startMin] = timeSlot.split(':').map(Number);
+    const startTotalMinutes = startHour * 60 + startMin;
+    const endTotalMinutes = startTotalMinutes + durationMinutes;
+    const endHour = Math.floor(endTotalMinutes / 60);
+    const endMinute = endTotalMinutes % 60;
+    const endTime = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
+
+    const updatedSchedule = { ...schedule };
+    updatedSchedule[timeSlot] = {
+      name: task.name,
+      taskId: task.id,
+      projectId: task.projectId,
+      projectName: task.projectName,
+      area: task.areaId,
+      completed: false,
+      priority: task.priority || 'medium',
+      durationMinutes: durationMinutes,
+      endTime: endTime
+    };
+
+    saveSchedule(updatedSchedule);
+    updateRecentProjects(task.projectId);
+    updateTaskFrequency(task.id);
+    showToast('Task scheduled!', 'success');
+  };
+
   // Add custom task
   const addCustomTask = (timeSlot, taskName) => {
     if (!taskName.trim()) return;
@@ -1234,6 +1275,7 @@ function App() {
             expandedSlots={expandedSlots}
             onTimeSlotClick={handleTimeSlotClick}
             onRefreshCalendar={fetchGoogleCalendarEvents}
+            onMobileSlotTap={openMobileTaskPicker}
           />
         </div>
 
@@ -1307,6 +1349,19 @@ function App() {
         connectedAccounts={connectedAccounts}
         onAddAccount={connectGoogleCalendar}
         onDisconnectAccount={disconnectGoogleAccount}
+      />
+
+      <MobileTaskPicker
+        isOpen={mobileTaskPicker.isOpen}
+        onClose={closeMobileTaskPicker}
+        timeSlot={mobileTaskPicker.timeSlot}
+        lifeAreas={lifeAreas}
+        projects={projects}
+        onSelectTask={handleMobileTaskSelect}
+        onAddCustomTask={(timeSlot, taskName) => {
+          addCustomTask(timeSlot, taskName);
+          closeMobileTaskPicker();
+        }}
       />
     </div>
   );

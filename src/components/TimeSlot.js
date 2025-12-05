@@ -37,7 +37,8 @@ const TimeSlot = React.memo(function TimeSlot({
   recentProjects = [],
   isExpanded,
   expansionLevel,
-  onTimeClick
+  onTimeClick,
+  onMobileSlotTap
 }) {
   const isCalendarEvent = task?.type === 'calendar';
   const areaColor = lifeAreas?.find(area => area.id === task?.area)?.color;
@@ -155,16 +156,26 @@ const TimeSlot = React.memo(function TimeSlot({
             </div>
           </div>
         ) : (
-          <input
-            className="add-task-input"
-            placeholder="Drag a task here or type to add..."
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' && e.target.value.trim()) {
-                onAddCustomTask(time, e.target.value);
-                e.target.value = '';
-              }
-            }}
-          />
+          <>
+            {/* Desktop: show input for typing */}
+            <input
+              className="add-task-input desktop-only"
+              placeholder="Drag a task here or type to add..."
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && e.target.value.trim()) {
+                  onAddCustomTask(time, e.target.value);
+                  e.target.value = '';
+                }
+              }}
+            />
+            {/* Mobile: show tap-to-add button */}
+            <button
+              className="mobile-slot-tap-btn mobile-only"
+              onClick={() => onMobileSlotTap && onMobileSlotTap(time)}
+            >
+              Tap to add task
+            </button>
+          </>
         )}
       </div>
     </div>
